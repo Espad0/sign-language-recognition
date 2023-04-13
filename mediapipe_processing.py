@@ -28,6 +28,8 @@ def process_video(video_file):
             # pass by reference.
             image.flags.writeable = False
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            height,width,_ = image.shape
+            y_coef = height/width
             result = holistic.process(image)
 
             data = []
@@ -67,7 +69,7 @@ def process_video(video_file):
                     'type': landmark_type,
                     'landmark_index': landmark_index-offset,
                     'x': points.landmark[landmark_index-offset].x if points is not np.nan else np.nan,
-                    'y': points.landmark[landmark_index-offset].y if points is not np.nan else np.nan,
+                    'y': points.landmark[landmark_index-offset].y * y_coef if points is not np.nan else np.nan,
                     'z': points.landmark[landmark_index-offset].z if points is not np.nan else np.nan
                 })
 
@@ -92,7 +94,7 @@ def process_folder(folder_path, output_folder):
     for i, vname in enumerate(video_names):
         video_df = process_video(os.path.join(folder_path, vname))
         video_df = video_df.reset_index(drop=True)
-        video_df.to_csv(os.path.join(output_folder, vname.replace('.mp4','.csv')))
+        video_df.to_csv(os.path.join(output_folder, vname.replace('.mp4','.csv')), index=False)
         print('Done',str(i+1)+'/'+str(folder_len))
 
     return True
