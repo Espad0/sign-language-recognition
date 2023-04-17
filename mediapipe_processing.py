@@ -94,7 +94,10 @@ def process_folder(folder_path, output_folder):
     for i, vname in enumerate(video_names):
         video_df = process_video(os.path.join(folder_path, vname))
         video_df = video_df.reset_index(drop=True)
-        video_df.to_csv(os.path.join(output_folder, vname.replace('.mp4','.csv')), index=False)
+        video_df['x'] = video_df['x'].astype(np.float32)
+        video_df['y'] = video_df['y'].astype(np.float32)
+        video_df['z'] = video_df['z'].astype(np.float32)
+        video_df.to_parquet(os.path.join(output_folder, vname.replace('.mp4','.parquet')), index=False)
         print('Done',str(i+1)+'/'+str(folder_len))
 
     return True
